@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "j1NAB8Tyj/M=",
+  "dgSpecHash": "X+IQgFq35GA=",
   "success": true,
-  "projectFilePath": "/Users/dani/Documents/Studie/Jaar 3/Concurrency/Retake/concurrency_retake_students/concurrency_retake.csproj",
+  "projectFilePath": "/Users/dani/Documents/Studie/Jaar 3/Concurrency/Retake/git_repo/concurrency_assignment/concurrency_retake_students/concurrency_retake.csproj",
   "expectedPackageFiles": [
     "/Users/dani/.nuget/packages/microsoft.netcore.app.ref/6.0.36/microsoft.netcore.app.ref.6.0.36.nupkg.sha512",
     "/Users/dani/.nuget/packages/microsoft.aspnetcore.app.ref/6.0.36/microsoft.aspnetcore.app.ref.6.0.36.nupkg.sha512",
