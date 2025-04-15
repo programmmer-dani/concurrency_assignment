@@ -6,11 +6,7 @@ namespace Concurrency_retake
     public class Client
     {
         // you can add more code below this line
-
-
-
-
-
+        public Thread thread;
         // you can add more code above this line
         // Please do not alter the variables below
         private int clientId;
@@ -28,8 +24,8 @@ namespace Concurrency_retake
 
         public void Start() //you can alter the code in here if needed
         {
-
-
+            thread = new Thread(Life);
+            thread.Start();
         }
 
         public void Life() //you should only add protections in this method

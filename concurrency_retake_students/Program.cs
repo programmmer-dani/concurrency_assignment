@@ -14,9 +14,6 @@ namespace Concurrency_retake // Removing this comment will result in NVL
         private static int n_cooks = 1998; // Number of cooks will always be the same as the number of clients
         // you can add code below this line
 
-
-
-
         // do not alter the code below
         private static Client[] clients = new Client[n_clients]; // Array of orders
         private static Cook[] cooks = new Cook[n_cooks]; // Array of cooks
@@ -41,8 +38,7 @@ namespace Concurrency_retake // Removing this comment will result in NVL
             // do not alter the code above
             // you can add more code below
 
-
-
+            JoinAllThreads(clients, cooks);
 
             // you can add more code above this line
             // Print statistics DO NOT alter this code.
@@ -56,22 +52,37 @@ namespace Concurrency_retake // Removing this comment will result in NVL
 
         private static void ActivateClients()// activate clients
         {
-
+            foreach (Client client in clients) { client.Start(); }
         }
 
         private static void ActivateCooks() //activate cooks
         {
-
+            foreach (Cook cook in cooks) { cook.Start(); }
         }
 
         private static void InitPeople() //init clients and cooks
         {
+            for (int i = 0; i < n_clients; i++)
+            {
+                Cook cook = new Cook(i + 1, orderLocation, pickupPoint);
+                Client client = new Client(i + 1, orderLocation, pickupPoint);
+                cooks[i] = cook;
+                clients[i] = client;
+            }
+        }
 
+        private static void JoinAllThreads(Client[] clients, Cook[] cooks)
+        {
+            for (int i = 0; i < clients.Length; i++)
+            {
+                clients[i].thread.Join();
+                cooks[i].thread.Join();
+            }
         }
     }
     public class Order
     { //DO NOT ALTER THIS CLASS
-        public static int OrderPrepared{ get; private set; } = 0;
+        public static int OrderPrepared { get; private set; } = 0;
         public OrderState State { get; private set; }
 
         public PortionState PortionStateval { get; private set; }
@@ -95,7 +106,7 @@ namespace Concurrency_retake // Removing this comment will result in NVL
 
         public void FinishPortion()
         {
-                PortionStateval = PortionState.done;
+            PortionStateval = PortionState.done;
         }
     }
 
