@@ -13,7 +13,8 @@ namespace Concurrency_retake // Removing this comment will result in NVL
         private static int n_clients = 1998;
         private static int n_cooks = 1998; // Number of cooks will always be the same as the number of clients
         // you can add code below this line
-
+        public static Semaphore orderSemaphore = new Semaphore(0, n_clients);
+        public static Semaphore pickupSemaphore = new Semaphore(0, n_clients);
         // do not alter the code below
         private static Client[] clients = new Client[n_clients]; // Array of orders
         private static Cook[] cooks = new Cook[n_cooks]; // Array of cooks
