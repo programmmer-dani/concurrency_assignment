@@ -38,9 +38,12 @@ namespace Concurrency_retake
 
             Console.WriteLine($"-Cook {cookId} is about to pick up an order.");
 
-            tempOrder = orderLocation.First();
 
+// SEMAPHORE - receive signal from client that order is placed
+// MUTEX lock
+            tempOrder = orderLocation.First();
             orderLocation.RemoveFirst();
+// MUTEX unlock
 
             // Simulate cooking time
             Thread.Sleep(new Random().Next(100, 500));
@@ -61,13 +64,12 @@ namespace Concurrency_retake
 
 
             // if it is the last contribution
+// MUTEX - lock
             if (workingsurface.Count == Program.n_portions - 1)
             {
                 // Console.WriteLine($"+Cook ............there are {workingsurface.Count} portions on the working surface");
                 // add the order to the working surface
-
                 tempOrder.FinishPortion();
-
                 workingsurface.AddFirst(tempOrder);
 
                 // remove the orders from the working surface and put them on the arm
@@ -75,12 +77,11 @@ namespace Concurrency_retake
                 {
                     cookArms.AddFirst(order.FinishWorking(Order.OrderPrepared.ToString()));
                 }
-
                 tempOrder = workingsurface.First();
-
                 workingsurface.RemoveFirst();
-
                 workingsurface.Clear();
+// MUTEX - unlock
+// SEMAPHORE - send signal to client that order(s) ready
 
                 toPrint = $"-Cook {cookId} is finishing order {tempOrder.ToString()} and will deliver {cookArms.Count} portions";
             }
@@ -88,10 +89,9 @@ namespace Concurrency_retake
             {
                 // if it is the first n ontributions
                 // add the order to the working surface
-
                 tempOrder.FinishPortion();
-
                 workingsurface.AddFirst(tempOrder);
+// MUTEX - unlock
 
                 //toPrint = $"+Cook {cookId} is cooking order {tempOrder.ToString()}";
                 done = true;
@@ -100,9 +100,7 @@ namespace Concurrency_retake
 
             if (done)
             {
-
                 Console.WriteLine($"-Cook {cookId} is going to rest forever.");
-
                 return;
             }
 
@@ -116,10 +114,12 @@ namespace Concurrency_retake
             // add the portion to the pickup point tray
             // feel free to alter the "ID" to something meaningful to you for debugging purposes
 
+// MUTEX - lock
             foreach (var tempPortion in cookArms)
             {
                 pickupPoint.AddFirst(tempPortion);
             }
+// MUTEX - unlock
 
             Console.WriteLine($"-Cook {cookId} has delivered {cookArms.Count} orders.");
 
