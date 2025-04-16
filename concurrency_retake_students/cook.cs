@@ -8,14 +8,13 @@ namespace Concurrency_retake
     {
         // you can add more code below this line
         public Thread thread;
-
         // you can add more code above this line
         // Please do not alter the variables below
         private int cookId;
         private LinkedList<Order> orderLocation;
         private LinkedList<Portion> pickupPoint;
         private LinkedList<Portion> cookArms = new();
-        public static LinkedList<Order> workingsurface = new();
+        public static LinkedList<Order> workingsurface = new(); // ziet er bijna uit alsof elke cook zijn eigen workinsurface heeft??
 
         public Cook(int cookId, LinkedList<Order> orderLocation, LinkedList<Portion> pickupPoint)
         //you can alter the code and the parameters passed in here
@@ -39,11 +38,16 @@ namespace Concurrency_retake
             Console.WriteLine($"-Cook {cookId} is about to pick up an order.");
 
 
-// SEMAPHORE - receive signal from client that order is placed
-// MUTEX lock
-            tempOrder = orderLocation.First();
-            orderLocation.RemoveFirst();
-// MUTEX unlock
+            // SEMAPHORE - receive signal from client that order is placed
+            Program.orderSemaphore.WaitOne();
+
+            // MUTEX lock
+            lock (orderLocation)
+            {
+                tempOrder = orderLocation.First();
+                orderLocation.RemoveFirst();
+            }
+            // MUTEX unlock
 
             // Simulate cooking time
             Thread.Sleep(new Random().Next(100, 500));
@@ -64,39 +68,40 @@ namespace Concurrency_retake
 
 
             // if it is the last contribution
-// MUTEX - lock
-            if (workingsurface.Count == Program.n_portions - 1)
+            // MUTEX - lock
+            lock (workingsurface) // PROBABLY OVERLOCKING
             {
-                // Console.WriteLine($"+Cook ............there are {workingsurface.Count} portions on the working surface");
-                // add the order to the working surface
-                tempOrder.FinishPortion();
-                workingsurface.AddFirst(tempOrder);
-
-                // remove the orders from the working surface and put them on the arm
-                foreach (var order in workingsurface)
+                if (workingsurface.Count == Program.n_portions - 1)
                 {
-                    cookArms.AddFirst(order.FinishWorking(Order.OrderPrepared.ToString()));
+                    // Console.WriteLine($"+Cook ............there are {workingsurface.Count} portions on the working surface");
+                    // add the order to the working surface
+                    tempOrder.FinishPortion();
+                    workingsurface.AddFirst(tempOrder);
+
+                    // remove the orders from the working surface and put them on the arm
+                    foreach (var order in workingsurface)
+                    {
+                        cookArms.AddFirst(order.FinishWorking(Order.OrderPrepared.ToString()));
+                    }
+                    tempOrder = workingsurface.First();
+                    workingsurface.RemoveFirst();
+                    workingsurface.Clear();
+
+                    // MUTEX - unlock
+                    toPrint = $"-Cook {cookId} is finishing order {tempOrder.ToString()} and will deliver {cookArms.Count} portions";
                 }
-                tempOrder = workingsurface.First();
-                workingsurface.RemoveFirst();
-                workingsurface.Clear();
-// MUTEX - unlock
-// SEMAPHORE - send signal to client that order(s) ready
+                else
+                {
+                    // if it is the first n ontributions
+                    // add the order to the working surface
+                    tempOrder.FinishPortion();
+                    workingsurface.AddFirst(tempOrder);
+                    // MUTEX - unlock
 
-                toPrint = $"-Cook {cookId} is finishing order {tempOrder.ToString()} and will deliver {cookArms.Count} portions";
+                    //toPrint = $"+Cook {cookId} is cooking order {tempOrder.ToString()}";
+                    done = true;
+                }
             }
-            else
-            {
-                // if it is the first n ontributions
-                // add the order to the working surface
-                tempOrder.FinishPortion();
-                workingsurface.AddFirst(tempOrder);
-// MUTEX - unlock
-
-                //toPrint = $"+Cook {cookId} is cooking order {tempOrder.ToString()}";
-                done = true;
-            }
-
 
             if (done)
             {
@@ -105,27 +110,22 @@ namespace Concurrency_retake
             }
 
             Console.WriteLine(toPrint);
-
             //add a part of a portion to the order
             // it is finally ready
-
             Console.WriteLine($"-Cook {cookId} is done cooking.");
-
             // add the portion to the pickup point tray
             // feel free to alter the "ID" to something meaningful to you for debugging purposes
 
-// MUTEX - lock
-            foreach (var tempPortion in cookArms)
-            {
-                pickupPoint.AddFirst(tempPortion);
-            }
-// MUTEX - unlock
+            // MUTEX - lock
+            lock (pickupPoint) { foreach (var tempPortion in cookArms) { pickupPoint.AddFirst(tempPortion); } }
+            // MUTEX - unlock
+
+            // SEMAPHORE - send signal to client that order(s) ready *4
+            for (int i = 0; i < 3; i++) { Program.pickupSemaphore.Release(); }
 
             Console.WriteLine($"-Cook {cookId} has delivered {cookArms.Count} orders.");
-
             // clear the arms
             cookArms.Clear();
-
             Console.WriteLine($"-Cook {cookId} is going to rest forever.");
         }
     }

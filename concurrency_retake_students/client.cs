@@ -34,10 +34,12 @@ namespace Concurrency_retake
             // order placement
             Order order = new();
 
-// MUTEX - lock
-            orderLocation.AddFirst(order);
-// MUTEX - unlock
-// SEMAPHORE - send signal to cook that order is placed
+            // MUTEX - lock
+            lock (orderLocation) { orderLocation.AddFirst(order); }
+            // MUTEX - unlock
+
+            // SEMAPHORE - send signal to cook that order is placed
+            Program.orderSemaphore.Release();
 
             Console.WriteLine($"+Client {clientId} has placed an order.");
 
@@ -50,11 +52,16 @@ namespace Concurrency_retake
             // order pickup from the tray
             Console.WriteLine($"+Client {clientId} is about topick up the order.");
 
-// SEMAPHORE - receive signalfrom cook that order(s) ready
-// MUTEX - lock
-            tmpmyfood = pickupPoint.First();
-            pickupPoint.RemoveFirst();
-// MUTEX - unlock
+            // SEMAPHORE - receive signalfrom cook that order(s) ready
+            Program.pickupSemaphore.WaitOne();
+
+            // MUTEX - lock
+            lock (pickupPoint)
+            {
+                tmpmyfood = pickupPoint.First();
+                pickupPoint.RemoveFirst();
+            }
+            // MUTEX - unlock
 
             // the order is picked up
             // the client can now leave.
