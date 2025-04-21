@@ -120,8 +120,8 @@ namespace Concurrency_retake
             lock (pickupPoint) { foreach (var tempPortion in cookArms) { pickupPoint.AddFirst(tempPortion); } }
             // MUTEX - unlock
 
-            // SEMAPHORE - send signal to client that order(s) ready *4
-            for (int i = 0; i < 3; i++) { Program.pickupSemaphore.Release(); }
+            // SEMAPHORE - send signal to client that order(s) ready *n_portions
+            Program.pickupSemaphore.Release(cookArms.Count);
 
             Console.WriteLine($"-Cook {cookId} has delivered {cookArms.Count} orders.");
             // clear the arms
