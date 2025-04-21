@@ -14,7 +14,7 @@ namespace Concurrency_retake
         private LinkedList<Order> orderLocation;
         private LinkedList<Portion> pickupPoint;
         private LinkedList<Portion> cookArms = new();
-        public static LinkedList<Order> workingsurface = new(); // ziet er bijna uit alsof elke cook zijn eigen workinsurface heeft??
+        public static LinkedList<Order> workingsurface = new();
 
         public Cook(int cookId, LinkedList<Order> orderLocation, LinkedList<Portion> pickupPoint)
         //you can alter the code and the parameters passed in here
