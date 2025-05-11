@@ -15,7 +15,6 @@ namespace Concurrency_retake
         private LinkedList<Portion> pickupPoint;
         private LinkedList<Portion> cookArms = new();
         public static LinkedList<Order> workingsurface = new();
-        public static Mutex workingsurfaceMutex = new();
 
         public Cook(int cookId, LinkedList<Order> orderLocation, LinkedList<Portion> pickupPoint)
         //you can alter the code and the parameters passed in here
@@ -38,17 +37,12 @@ namespace Concurrency_retake
 
             Console.WriteLine($"-Cook {cookId} is about to pick up an order.");
 
-
-            // SEMAPHORE - receive signal from client that order is placed
             Program.orderSemaphore.WaitOne();
-
-            // MUTEX lock
             lock (orderLocation)
             {
                 tempOrder = orderLocation.First();
                 orderLocation.RemoveFirst();
             }
-            // MUTEX unlock
 
             // Simulate cooking time
             Thread.Sleep(new Random().Next(100, 500));
@@ -69,46 +63,35 @@ namespace Concurrency_retake
 
 
             // if it is the last contribution
-
-            // MUTEX - lock
-            // lock (workingsurface) // PROBABLY OVERLOCKING
-            workingsurfaceMutex.WaitOne();
-            if (workingsurface.Count == Program.n_portions - 1)
+            lock (workingsurface)
             {
-                // Console.WriteLine($"+Cook ............there are {workingsurface.Count} portions on the working surface");
-                // add the order to the working surface
-
-// shouldn't be locked vvv
-                tempOrder.FinishPortion();
-                
-                workingsurface.AddFirst(tempOrder);
-                // remove the orders from the working surface and put them on the arm
-                foreach (var order in workingsurface)
+                if (workingsurface.Count == Program.n_portions - 1)
                 {
-                    cookArms.AddFirst(order.FinishWorking(Order.OrderPrepared.ToString()));
+                    // Console.WriteLine($"+Cook ............there are {workingsurface.Count} portions on the working surface");
+                    // add the order to the working surface
+
+                    tempOrder.FinishPortion();
+                    workingsurface.AddFirst(tempOrder);
+                    // remove the orders from the working surface and put them on the arm
+                    foreach (var order in workingsurface)
+                    {
+                        cookArms.AddFirst(order.FinishWorking(Order.OrderPrepared.ToString()));
+                    }
+                    tempOrder = workingsurface.First();
+                    workingsurface.RemoveFirst();
+                    workingsurface.Clear();
+
+                    toPrint = $"-Cook {cookId} is finishing order {tempOrder.ToString()} and will deliver {cookArms.Count} portions";
                 }
-                tempOrder = workingsurface.First();
-                workingsurface.RemoveFirst();
-                workingsurface.Clear();
-                workingsurfaceMutex.ReleaseMutex();
-                // UNLOCK
-
-                toPrint = $"-Cook {cookId} is finishing order {tempOrder.ToString()} and will deliver {cookArms.Count} portions";
-            }
-            else
-            {
-                // if it is the first n ontributions
-                // add the order to the working surface
-
-// shouldn't be locked vvv
-                tempOrder.FinishPortion(); 
-
-                workingsurface.AddFirst(tempOrder);
-                workingsurfaceMutex.ReleaseMutex();
-                // UNLOCK
-
-                //toPrint = $"+Cook {cookId} is cooking order {tempOrder.ToString()}";
-                done = true;
+                else
+                {
+                    // if it is the first n ontributions
+                    // add the order to the working surface
+                    tempOrder.FinishPortion();
+                    workingsurface.AddFirst(tempOrder);
+                    //toPrint = $"+Cook {cookId} is cooking order {tempOrder.ToString()}";
+                    done = true;
+                }
             }
 
 
@@ -125,11 +108,8 @@ namespace Concurrency_retake
             // add the portion to the pickup point tray
             // feel free to alter the "ID" to something meaningful to you for debugging purposes
 
-            // MUTEX - lock
             lock (pickupPoint) { foreach (var tempPortion in cookArms) { pickupPoint.AddFirst(tempPortion); } }
-            // MUTEX - unlock
 
-            // SEMAPHORE - send signal to client that order(s) ready *n_portions
             Program.pickupSemaphore.Release(cookArms.Count);
 
             Console.WriteLine($"-Cook {cookId} has delivered {cookArms.Count} orders.");
