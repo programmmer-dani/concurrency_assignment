@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/dani/Documents/Studie/Jaar 3/Concurrency/Retake/git_repo/concurrency_assignment/concurrency_retake_students/concurrency_retake.csproj": {}
+    "/Users/dani/Documents/Studie/Jaar 3/concurrency_assignment/concurrency_retake_students/concurrency_retake.csproj": {}
   },
   "projects": {
-    "/Users/dani/Documents/Studie/Jaar 3/Concurrency/Retake/git_repo/concurrency_assignment/concurrency_retake_students/concurrency_retake.csproj": {
+    "/Users/dani/Documents/Studie/Jaar 3/concurrency_assignment/concurrency_retake_students/concurrency_retake.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/dani/Documents/Studie/Jaar 3/Concurrency/Retake/git_repo/concurrency_assignment/concurrency_retake_students/concurrency_retake.csproj",
+        "projectUniqueName": "/Users/dani/Documents/Studie/Jaar 3/concurrency_assignment/concurrency_retake_students/concurrency_retake.csproj",
         "projectName": "concurrency_retake",
-        "projectPath": "/Users/dani/Documents/Studie/Jaar 3/Concurrency/Retake/git_repo/concurrency_assignment/concurrency_retake_students/concurrency_retake.csproj",
+        "projectPath": "/Users/dani/Documents/Studie/Jaar 3/concurrency_assignment/concurrency_retake_students/concurrency_retake.csproj",
         "packagesPath": "/Users/dani/.nuget/packages/",
-        "outputPath": "/Users/dani/Documents/Studie/Jaar 3/Concurrency/Retake/git_repo/concurrency_assignment/concurrency_retake_students/obj/",
+        "outputPath": "/Users/dani/Documents/Studie/Jaar 3/concurrency_assignment/concurrency_retake_students/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/dani/.nuget/NuGet/NuGet.Config"

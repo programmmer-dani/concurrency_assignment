@@ -71,44 +71,46 @@ namespace Concurrency_retake
             // if it is the last contribution
 
             // MUTEX - lock
-            // lock (workingsurface) // PROBABLY OVERLOCKING
-            workingsurfaceMutex.WaitOne();
-            if (workingsurface.Count == Program.n_portions - 1)
+            lock (workingsurface)
             {
-                // Console.WriteLine($"+Cook ............there are {workingsurface.Count} portions on the working surface");
-                // add the order to the working surface
-
-// shouldn't be locked vvv
-                tempOrder.FinishPortion();
-                
-                workingsurface.AddFirst(tempOrder);
-                // remove the orders from the working surface and put them on the arm
-                foreach (var order in workingsurface)
+                // workingsurfaceMutex.WaitOne();
+                if (workingsurface.Count == Program.n_portions - 1)
                 {
-                    cookArms.AddFirst(order.FinishWorking(Order.OrderPrepared.ToString()));
+                    // Console.WriteLine($"+Cook ............there are {workingsurface.Count} portions on the working surface");
+                    // add the order to the working surface
+
+                    // shouldn't be locked vvv
+                    tempOrder.FinishPortion();
+
+                    workingsurface.AddFirst(tempOrder);
+                    // remove the orders from the working surface and put them on the arm
+                    foreach (var order in workingsurface)
+                    {
+                        cookArms.AddFirst(order.FinishWorking(Order.OrderPrepared.ToString()));
+                    }
+                    tempOrder = workingsurface.First();
+                    workingsurface.RemoveFirst();
+                    workingsurface.Clear();
+                    // workingsurfaceMutex.ReleaseMutex();
+                    // UNLOCK
+
+                    toPrint = $"-Cook {cookId} is finishing order {tempOrder.ToString()} and will deliver {cookArms.Count} portions";
                 }
-                tempOrder = workingsurface.First();
-                workingsurface.RemoveFirst();
-                workingsurface.Clear();
-                workingsurfaceMutex.ReleaseMutex();
-                // UNLOCK
+                else
+                {
+                    // if it is the first n ontributions
+                    // add the order to the working surface
 
-                toPrint = $"-Cook {cookId} is finishing order {tempOrder.ToString()} and will deliver {cookArms.Count} portions";
-            }
-            else
-            {
-                // if it is the first n ontributions
-                // add the order to the working surface
+                    // shouldn't be locked vvv
+                    tempOrder.FinishPortion();
 
-// shouldn't be locked vvv
-                tempOrder.FinishPortion(); 
+                    workingsurface.AddFirst(tempOrder);
+                    //workingsurfaceMutex.ReleaseMutex();
+                    // UNLOCK
 
-                workingsurface.AddFirst(tempOrder);
-                workingsurfaceMutex.ReleaseMutex();
-                // UNLOCK
-
-                //toPrint = $"+Cook {cookId} is cooking order {tempOrder.ToString()}";
-                done = true;
+                    //toPrint = $"+Cook {cookId} is cooking order {tempOrder.ToString()}";
+                    done = true;
+                }
             }
 
 
