@@ -1,3 +1,6 @@
+// Daniel Jong 0997226
+// Tobias Zelders 0981403
+
 using System;
 using System.Threading;
 
