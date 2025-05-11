@@ -36,16 +36,13 @@ namespace Concurrency_retake
             Order? tempOrder;
 
             Console.WriteLine($"-Cook {cookId} is about to pick up an order.");
-            
-            Program.orderSemaphore.WaitOne();
 
-            // MUTEX lock
+            Program.orderSemaphore.WaitOne();
             lock (orderLocation)
             {
                 tempOrder = orderLocation.First();
                 orderLocation.RemoveFirst();
             }
-            // MUTEX unlock
 
             // Simulate cooking time
             Thread.Sleep(new Random().Next(100, 500));
