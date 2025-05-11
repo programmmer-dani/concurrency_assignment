@@ -36,9 +36,7 @@ namespace Concurrency_retake
             Order? tempOrder;
 
             Console.WriteLine($"-Cook {cookId} is about to pick up an order.");
-
-
-            // SEMAPHORE - receive signal from client that order is placed
+            
             Program.orderSemaphore.WaitOne();
 
             // MUTEX lock
